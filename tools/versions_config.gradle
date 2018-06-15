@@ -1,0 +1,5 @@
+ext {
+    libVersions = [
+            kotlinStdlibJdk8:           '1.2.40'
+    ]
+}
