@@ -1,8 +1,11 @@
 package com.uchia.patternview
 
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Debug
+import android.os.SystemClock
 import android.util.AttributeSet
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -10,30 +13,23 @@ import android.view.View
 import com.uchia.patternview.rules.AbsPatternRule
 import com.uchia.patternview.rules.GesturePattern
 import com.uchia.patternview.rules.NumberPattern
-import com.uchia.patternview.rules.PatternType
+import com.uchia.patternview.rules.enums.PatternType
+import com.uchia.patternview.rules.enums.DisplayMode
 import java.util.*
 
-class UltimatePatternView : View {
+class UltimatePatternView : View ,IPatternView{
 
     private val hitFactor = 0.6f
     private val diameterFactor = 0.10f
 
     private var circleSize: Int = 0
 
-    private var pathWidth: Int = 0
-    private var gridColumns: Int = 0
-    private var gridRows: Int = 0
-
-    private var squareWidth: Float = 0f
-    private var squareHeight: Float = 0f
-
-    private var inProgressX = -1f
-    private var inProgressY = -1f
-
-    private var patternInProgress = false
+    private var inputEnabled = true
+    private val PROFILE_DRAWING = false
+    private var drawingProfilingStarted = false
 
     private val invalidate = Rect()
-    private lateinit var mPattern: ArrayList<Cell>
+    private lateinit var mPattern : ArrayList<Cell>
 
 
     var patternType = PatternType.Gesture
@@ -63,6 +59,22 @@ class UltimatePatternView : View {
     var onPatternClearedListener: OnPatternClearedListener? = null
     var onPatternCellAddedListener: OnPatternCellAddedListener? = null
     var onPatternDetectedListener: OnPatternDetectedListener? = null
+
+    override var squareWidth: Float = 0f
+    override var squareHeight: Float = 0f
+
+    override var gridColumns: Int = 0
+    override var gridRows: Int = 0
+
+    override var inProgressX = -1f
+    override var inProgressY = -1f
+
+    override var animatingPeriodStart: Long = 0
+
+    override val hostContext: Context
+        get() = context
+
+    override var pathWidth: Float = 0f
 
     constructor(context: Context)
             : this(context, null)
@@ -102,7 +114,7 @@ class UltimatePatternView : View {
                     Color.BLACK)
             pathWidth = typedArray.getDimensionPixelOffset(
                     R.styleable.UltimatePatternView_upv_pathWidth,
-                    5)
+                    5) + 0f
 
         } finally {
             typedArray.recycle()
@@ -140,10 +152,54 @@ class UltimatePatternView : View {
 
         squareWidth = Math.min(squareWidth, squareHeight)
         squareHeight = Math.min(squareWidth, squareHeight)
+
         setMeasuredDimension(width, height)
     }
 
+    override fun onDraw(canvas: Canvas) {
 
+        patternRule.getDrawProxy().draw(canvas,mPattern)
+
+    }
+
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (!inputEnabled || !isEnabled) {
+            return false
+        }
+
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                handleActionDown(event)
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                handleActionUp()
+                return true
+            }
+            MotionEvent.ACTION_MOVE -> {
+                handleActionMove(event)
+                return true
+            }
+            MotionEvent.ACTION_CANCEL -> {
+
+                patternRule.patternInProgress = false
+                resetPattern()
+                notifyPatternCleared()
+
+                if (PROFILE_DRAWING) {
+                    if (drawingProfilingStarted) {
+                        Debug.stopMethodTracing()
+                        drawingProfilingStarted = false
+                    }
+                }
+                return true
+            }
+            else -> {
+            }
+        }
+        return false
+    }
 
     private fun getColumnHit(x: Float): Int {
         val squareWidth = this.squareWidth
@@ -242,6 +298,47 @@ class UltimatePatternView : View {
         return null
     }
 
+    private fun handleActionDown(event: MotionEvent) {
+        resetPattern()
+        val x = event.x
+        val y = event.y
+        val hitCell = detectAndAddHit(x, y)
+        if (hitCell != null) {
+            patternRule.patternInProgress = true
+            patternRule.patternDisplayMode = DisplayMode.Correct
+            notifyPatternStarted()
+        } else {
+            /*
+             * Original source check for patternInProgress == true first before
+			 * calling this block. But if we do that, there will be nothing
+			 * happened when the user taps at empty area and releases the
+			 * finger. We want the pattern to be reset and the message will be
+			 * updated after the user did that.
+			 */
+            patternRule.patternInProgress = false
+            notifyPatternCleared()
+        }
+        if (hitCell != null) {
+            val startX = getCenterXForColumn(hitCell.column)
+            val startY = getCenterYForRow(hitCell.row)
+
+            val widthOffset = squareWidth / 2f
+            val heightOffset = squareHeight / 2f
+
+            invalidate((startX - widthOffset).toInt(),
+                    (startY - heightOffset).toInt(),
+                    (startX + widthOffset).toInt(), (startY + heightOffset).toInt())
+        }
+        inProgressX = x
+        inProgressY = y
+        if (PROFILE_DRAWING) {
+            if (!drawingProfilingStarted) {
+                Debug.startMethodTracing("LockPatternDrawing")
+                drawingProfilingStarted = true
+            }
+        }
+    }
+
     private fun handleActionMove(event: MotionEvent) {
         // Handle all recent motion events so we don't skip any cells even when
         // the device
@@ -250,22 +347,20 @@ class UltimatePatternView : View {
         for (i in 0 until historySize + 1) {
             val x = if (i < historySize) {
                 event.getHistoricalX(i)
-            }
-            else{
+            } else {
                 event.x
             }
 
-            val y = if (i < historySize){
+            val y = if (i < historySize) {
                 event.getHistoricalY(i)
-            }
-            else{
+            } else {
                 event.y
             }
             val patternSizePreHitDetect = mPattern.size
             var hitCell = detectAndAddHit(x, y)
             val patternSize = mPattern.size
             if (hitCell != null && patternSize == 1) {
-                patternInProgress = true
+                patternRule.patternInProgress = true
                 notifyPatternStarted()
             }
             // note current x and y for rubber banding of in progress patterns
@@ -278,7 +373,7 @@ class UltimatePatternView : View {
                 inProgressX = x
                 inProgressY = y
 
-                if (patternInProgress && patternSize > 0) {
+                if (patternRule.patternInProgress && patternSize > 0) {
                     val pattern = mPattern
                     val radius = squareWidth * diameterFactor * 0.5f
 
@@ -391,19 +486,67 @@ class UltimatePatternView : View {
         invalidate()
     }
 
+    private fun handleActionUp() {
+        // report pattern detected
+        if (!mPattern.isEmpty()) {
+            patternRule.patternInProgress = false
+            notifyPatternDetected()
+            invalidate()
+        }
+        if (PROFILE_DRAWING) {
+            if (drawingProfilingStarted) {
+                Debug.stopMethodTracing()
+                drawingProfilingStarted = false
+            }
+        }
+    }
 
-    private fun getCenterXForColumn(column: Int): Float {
+
+    override fun getCenterXForColumn(column: Int): Float {
         return paddingLeft + column * squareWidth + squareWidth / 2f
     }
 
-    private fun getCenterYForRow(row: Int): Float {
+    override fun getCenterYForRow(row: Int): Float {
         return paddingTop + row * squareHeight + squareHeight / 2f
     }
 
-    private fun addCellToPattern(newCell: Cell) {
+    fun addCellToPattern(newCell: Cell) {
         patternRule.draw(newCell, true)
         mPattern.add(newCell)
         notifyCellAdded()
+    }
+
+    fun resetPattern() {
+        mPattern.clear()
+        clearPatternDrawLookup()
+        patternRule.patternDisplayMode = DisplayMode.Correct
+        invalidate()
+    }
+
+    fun setDisplayMode(displayMode: DisplayMode) {
+        patternRule.patternDisplayMode = displayMode
+        if (displayMode == DisplayMode.Animate) {
+            if (mPattern.size == 0) {
+                throw IllegalStateException(
+                        "you must have a pattern to " + "animate if you want to set the display mode to animate")
+            }
+            animatingPeriodStart = SystemClock.elapsedRealtime()
+            val first = mPattern[0]
+            inProgressX = getCenterXForColumn(first.column)
+            inProgressY = getCenterYForRow(first.row)
+            clearPatternDrawLookup()
+        }
+        invalidate()
+    }
+
+    override fun isHostInEditMode(): Boolean = isInEditMode
+
+    private fun clearPatternDrawLookup() {
+//        for (i in 0 until gridRows) {
+//        for (j in 0 until gridColumns) {
+        patternRule.clearDrawing()
+//            }
+//        }
     }
 
 

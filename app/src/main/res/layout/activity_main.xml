@@ -4,17 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#333333"
     tools:context=".MainActivity">
 
+    <com.uchia.patternview.UltimatePatternView
+        android:id="@+id/pattern_view"
+        android:layout_width="320dp"
+        android:layout_height="320dp"
+        app:upv_gridColumns="3"
+        app:upv_gridRows="4"
+        app:upv_circleColor="@android:color/white"
+        app:upv_circleSize="1dp"
+        app:upv_dotColor="@android:color/white"
+        app:upv_pathColor="@android:color/white"
+        app:upv_pathWidth="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.626" />
+
     <TextView
-        android:id="@+id/text"
+        android:id="@+id/status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginBottom="100dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textColor="@android:color/white"
         android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/pattern_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="输入隐藏应用密码" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="52dp"
+        android:background="@android:color/transparent"
+        android:minWidth="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pattern_view"
+        app:layout_constraintVertical_bias="0.288"
+        tools:text="dfsafdsa" />
 
 </android.support.constraint.ConstraintLayout>

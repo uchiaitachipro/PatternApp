@@ -1,8 +1,16 @@
 package com.uchia.patternview.rules
 
 import com.uchia.patternview.Cell
+import com.uchia.patternview.rules.enums.DisplayMode
 
 interface IPatternRule {
+
+    var patternDisplayMode : DisplayMode
+
+    var inStealthMode : Boolean
+    var inErrorStealthMode : Boolean
+
+    var patternInProgress : Boolean
 
     fun getRowCount(): Int
 
@@ -24,8 +32,8 @@ interface IPatternRule {
 
     fun isDrawn(t: Cell): Boolean
 
-    fun getDrawRule() : IDrawRule
+    fun getDrawProxy() : IDrawRule
 
-    fun needDrawLine() : Boolean
+
 
 }

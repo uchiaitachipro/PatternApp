@@ -1,4 +1,4 @@
-package com.uchia.patternview.rules
+package com.uchia.patternview.rules.enums
 
 enum class PatternType {
     Number,

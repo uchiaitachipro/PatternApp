@@ -7,14 +7,13 @@ import android.support.annotation.DrawableRes
 import android.support.v4.content.ContextCompat
 import android.view.View
 import com.uchia.patternview.Cell
+import com.uchia.patternview.IPatternView
+import com.uchia.patternview.UltimatePatternView
 import com.uchia.patternview.extensions.CellUtils
+import com.uchia.patternview.rules.enums.DisplayMode
 import java.util.*
 
 abstract class AbsPatternRule : IPatternRule {
-
-    enum class DisplayMode{
-        Correct, Animate,Wrong
-    }
 
     private var patternDrawLookup : Array<BooleanArray>
     private var cells : Array<Array<Cell>>
@@ -25,9 +24,9 @@ abstract class AbsPatternRule : IPatternRule {
     protected val pathPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     protected val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     protected val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    protected val hostView : View
+    protected val hostView : IPatternView
 
-    protected lateinit var context: Context
+    protected var context: Context
 
     var pathColor: Int = 0
         get() = field
@@ -53,7 +52,15 @@ abstract class AbsPatternRule : IPatternRule {
             hostView.invalidate()
         }
 
-    constructor(rows: Int, columns: Int, hostView : View) {
+    override var patternDisplayMode = DisplayMode.Correct
+
+    override var inStealthMode: Boolean = false
+
+    override var inErrorStealthMode: Boolean = false
+
+    override var patternInProgress: Boolean = false
+
+    constructor(rows: Int, columns: Int, hostView : IPatternView) {
 
         CellUtils.checkRange(rows, columns)
 
@@ -61,7 +68,7 @@ abstract class AbsPatternRule : IPatternRule {
         this.columns = columns
         this.size = rows * columns
         this.hostView = hostView
-        this.context = hostView.context
+        this.context = hostView.hostContext
 
         patternDrawLookup = Array(rows) { rowIndex ->
             BooleanArray(columns) { colIndex ->
@@ -115,11 +122,11 @@ abstract class AbsPatternRule : IPatternRule {
         return BitmapFactory.decodeResource(context.resources, resId)
     }
 
-    private fun drawableToBitmap(@DrawableRes resId: Int): Bitmap? {
+    fun drawableToBitmap(@DrawableRes resId: Int): Bitmap? {
         return drawableToBitmap(ContextCompat.getDrawable(context, resId)!!)
     }
 
-    fun drawableToBitmap(drawable: Drawable): Bitmap? {
+    private fun drawableToBitmap(drawable: Drawable): Bitmap? {
         val width = drawable.intrinsicWidth
         val height = drawable.intrinsicHeight
         if (width <= 0 || height <= 0) {
