@@ -46,6 +46,9 @@ class GesturePattern : AbsPatternRule {
 
     override fun getDrawProxy(): IDrawRule = drawProxy
 
+    override fun isInExcludeRow(row: Int): Boolean {
+        return row >= 3
+    }
 
     private fun computeBitmapSize() {
         // bitmaps have the size of the largest bitmap in this group
@@ -63,10 +66,18 @@ class GesturePattern : AbsPatternRule {
     }
 
 
+
     private var drawProxy = object : IDrawRule{
 
 
         override fun draw(canvas: Canvas, pattern : ArrayList<Cell>) {
+
+            canvas.save()
+            canvas.clipRect(
+                    0f,
+                    0f,
+                    hostView.getHostViewWidth().toFloat(),
+                    (hostView.getHostViewHeight() - hostView.squareHeight))
 
             val count = pattern.size
 
@@ -123,7 +134,19 @@ class GesturePattern : AbsPatternRule {
 
             for (i in 0 until hostView.gridRows) {
                 val topY = paddingTop + i * squareHeight
+                if (isInExcludeRow(i)){
+                    continue
+                }
                 for (j in 0 until hostView.gridColumns) {
+
+                    if (isInExcludeColumn(j)){
+                        continue
+                    }
+
+                    if (isExcludeCell(i,j)){
+                        continue
+                    }
+
                     val leftX = paddingLeft + j * squareWidth
                     drawCircle(canvas, leftX.toInt(), topY.toInt(), isDrawn(i, j))
                 }
@@ -158,7 +181,6 @@ class GesturePattern : AbsPatternRule {
 
                     val centerX = hostView.getCenterXForColumn(cell.column)
                     val centerY = hostView.getCenterYForRow(cell.row)
-                    Log.i("onDraw","column: ${cell.column} row: ${cell.row} centerX: $centerX centerY: $centerY")
                     if (i == 0) {
                         currentPath.moveTo(centerX, centerY)
                     } else {
@@ -173,6 +195,8 @@ class GesturePattern : AbsPatternRule {
                 }
                 canvas.drawPath(currentPath, pathPaint)
             }
+
+            canvas.restore()
 
             circlePaint.isFilterBitmap = oldFlagCircle // restore default flag
             dotPaint.isFilterBitmap = oldFlagDot // restore default flag
