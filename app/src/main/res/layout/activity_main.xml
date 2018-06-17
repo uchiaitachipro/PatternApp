@@ -18,6 +18,7 @@
         app:upv_dotColor="@android:color/white"
         app:upv_pathColor="@android:color/white"
         app:upv_pathWidth="3dp"
+        app:upv_number_textSize="27sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"

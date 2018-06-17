@@ -15,6 +15,9 @@
         <!-- The color of the dot. -->
         <attr name="upv_dotColor" format="color" />
         <attr name="upv_pathWidth" format="dimension"/>
+
+        <attr name="upv_number_textSize" format="dimension"/>
+
     </declare-styleable>
 
 </resources>

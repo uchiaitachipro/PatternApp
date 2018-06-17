@@ -10,6 +10,8 @@ interface IPatternView {
     var gridColumns: Int
     var gridRows: Int
 
+    var numberTextSize : Float
+
     var pathWidth: Float
 
     var squareWidth : Float
@@ -25,6 +27,10 @@ interface IPatternView {
     fun getPaddingTop() : Int
 
     fun getPaddingLeft() : Int
+
+    fun getHostViewWidth() : Int
+
+    fun getHostViewHeight() : Int
 
     fun isHostInEditMode() : Boolean
 

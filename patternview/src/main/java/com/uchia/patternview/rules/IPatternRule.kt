@@ -18,9 +18,17 @@ interface IPatternRule {
 
     fun getCell(row: Int, column: Int): Cell
 
+    fun isInExcludeRow(row: Int) : Boolean
+
+    fun isInExcludeColumn(col : Int) : Boolean
+
+    fun isExcludeCell(row: Int,col : Int) : Boolean
+
     fun getSize(): Int
 
     fun clear()
+
+    fun clearCellState()
 
     fun draw(t: Cell, drawn: Boolean)
 
@@ -34,6 +42,6 @@ interface IPatternRule {
 
     fun getDrawProxy() : IDrawRule
 
-
+    fun isInClickArea(cell : Cell,x : Float, y : Float) : Boolean
 
 }

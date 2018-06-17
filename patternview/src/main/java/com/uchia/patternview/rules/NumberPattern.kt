@@ -14,11 +14,13 @@ class NumberPattern : AbsPatternRule {
 
     private val InvalidNumber = "-1"
 
+    private val ClickAreaRatio = 0.3f
+
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val debugDotPaint = Paint()
 
     private val rect = Rect()
+    private val clickRect = Rect()
 
     private val positionToTextMap = mapOf(
             Pair(0, "1"), Pair(1, "2"),  Pair(2, "3"),
@@ -36,8 +38,6 @@ class NumberPattern : AbsPatternRule {
         textPaint.color = Color.WHITE
         textPaint.textSize = hostView.numberTextSize
 
-        debugDotPaint.color = Color.RED
-        debugDotPaint.strokeWidth = 8f
     }
 
 
@@ -48,6 +48,56 @@ class NumberPattern : AbsPatternRule {
 
     override fun getDrawProxy(): IDrawRule = drawProxy
 
+    override fun isInClickArea(cell : Cell,x : Float, y : Float): Boolean {
+
+        if (isInExcludeRow(cell.row)
+                || isInExcludeColumn(cell.column)
+                || isExcludeCell(cell.row,cell.column)){
+            return false
+        }
+
+        val index = cell.row * hostView.gridColumns
+
+
+        val text = positionToTextMap[index]
+
+        if (text == InvalidNumber){
+            return false
+        }
+
+        val horizontalArea = (ClickAreaRatio * hostView.squareWidth).toInt()
+        val verticalArea = (ClickAreaRatio * hostView.squareHeight).toInt()
+        val centerX = hostView.getCenterXForColumn(cell.column)
+        var centerY = hostView.getCenterYForRow(cell.row)
+        if ( (centerX - horizontalArea) <= x && (x <= (centerX + horizontalArea))
+                && (centerY - verticalArea) <= y && y <= (centerY + verticalArea)){
+            return true
+        }
+
+        return false
+    }
+
+
+    private fun getNumberOffsetCached(number : String) : IntArray{
+
+        if (numberToOffsetMap.containsKey(number)){
+            return numberToOffsetMap[number]!!
+        }
+
+        val textDimension = calculateTextDimension(number!!)
+        val result = intArrayOf(textDimension[0] / 2 , textDimension[1] / 2)
+        numberToOffsetMap[number] = result
+
+        return result
+    }
+
+    private fun calculateTextDimension(content : String): Array<Int> {
+        paint.textSize = hostView.numberTextSize
+        paint.getTextBounds(content, 0, content.length, rect)
+        val result = arrayOf(rect.width(),rect.height())
+        rect.setEmpty()
+        return result
+    }
 
     private val drawProxy = object : IDrawRule {
 
@@ -77,13 +127,13 @@ class NumberPattern : AbsPatternRule {
                     }
 
                     val index = ((row * hostView.gridColumns) + col)
-                    val text = positionToTextMap[index]!!
+                    val text = positionToTextMap[index]
 
                     if (text == InvalidNumber){
                         continue
                     }
 
-                    val offsetXY = getNumberOffsetCached(text)
+                    val offsetXY = getNumberOffsetCached(text!!)
                     val centerX = hostView.getCenterXForColumn(col)
                     val centerY = hostView.getCenterYForRow(row)
                     canvas.drawText(
@@ -96,28 +146,7 @@ class NumberPattern : AbsPatternRule {
             }
         }
 
-        private fun getNumberOffsetCached(number : String) : IntArray{
 
-            if (numberToOffsetMap.containsKey(number)){
-                return numberToOffsetMap[number]!!
-            }
-
-            val textDimension = calculateTextDimension(number!!)
-            val result = intArrayOf(textDimension[0] / 2 , textDimension[1] / 2)
-            numberToOffsetMap[number] = result
-
-            return result
-        }
-
-
-
-        private fun calculateTextDimension(content : String): Array<Int> {
-            paint.textSize = hostView.numberTextSize
-            paint.getTextBounds(content, 0, content.length, rect)
-            val result = arrayOf(rect.width(),rect.height())
-            rect.setEmpty()
-            return result
-        }
 
     }
 }

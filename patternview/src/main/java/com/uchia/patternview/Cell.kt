@@ -11,19 +11,21 @@ class Cell(): Parcelable{
     var offsetX = 0
     var offsetY = 0
     var dontHit = false
-
+    var isSelected = false
     constructor(
             row : Int,
             column : Int,
             offsetX : Int = 0,
             offsetY : Int = 0,
-            dontHit : Boolean = false):this(){
+            dontHit : Boolean = false,
+            isSelected : Boolean = false):this(){
         CellUtils.checkRange(row, column)
         this.row = row
         this.column = column
         this.offsetX = offsetX
         this.offsetY = offsetY
         this.dontHit = dontHit
+        this.isSelected = isSelected
     }
 
     fun getId(): String {
@@ -49,6 +51,7 @@ class Cell(): Parcelable{
         parcel.writeInt(offsetX)
         parcel.writeInt(offsetY)
         parcel.writeByte(if (dontHit) 1 else 0)
+        parcel.writeByte(if (isSelected) 1 else 0)
     }
 
     override fun describeContents(): Int {
@@ -61,6 +64,7 @@ class Cell(): Parcelable{
         offsetX = parcel.readInt()
         offsetY = parcel.readInt()
         dontHit = parcel.readByte() != 0.toByte()
+        isSelected = parcel.readByte() != 0.toByte()
     }
 
     companion object CREATOR : Parcelable.Creator<Cell> {

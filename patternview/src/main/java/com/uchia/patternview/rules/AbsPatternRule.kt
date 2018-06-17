@@ -114,9 +114,25 @@ abstract class AbsPatternRule : IPatternRule {
         }
     }
 
+    override fun clearCellState() {
+        cells.forEach {
+            it.forEach { cell ->
+                cell.isSelected = false
+            }
+        }
+    }
+
     override fun isDrawn(row: Int, column: Int): Boolean = patternDrawLookup[row][column]
 
     override fun isDrawn(cell: Cell): Boolean = patternDrawLookup[cell.row][cell.column]
+
+    override fun isExcludeCell(row: Int,col : Int): Boolean = false
+
+    override fun isInExcludeColumn(column: Int): Boolean = false
+
+    override fun isInExcludeRow(row: Int): Boolean = false
+
+    override fun isInClickArea(cell : Cell,x : Float, y : Float): Boolean = false
 
     private fun getBitmapFor(resId: Int): Bitmap {
         return BitmapFactory.decodeResource(context.resources, resId)
