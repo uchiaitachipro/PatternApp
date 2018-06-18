@@ -2,21 +2,26 @@
 <resources>
 
     <declare-styleable name="UltimatePatternView">
-        <!-- This is the size the circle. -->
+
         <attr name="upv_circleSize" format="dimension" />
-        <!-- Number of rows in the matrix. -->
+
         <attr name="upv_gridRows" format="integer" />
-        <!-- Number of columns in the matrix. -->
+
         <attr name="upv_gridColumns" format="integer" />
-        <!-- The color of the path between the cells. -->
+
         <attr name="upv_pathColor" format="color" />
-        <!-- The color of the circle. -->
+
         <attr name="upv_circleColor" format="color" />
-        <!-- The color of the dot. -->
+
         <attr name="upv_dotColor" format="color" />
+
         <attr name="upv_pathWidth" format="dimension"/>
 
         <attr name="upv_number_textSize" format="dimension"/>
+
+        <attr name="upv_cell_width" format="dimension"/>
+
+        <attr name="upv_cell_height" format="dimension"/>
 
     </declare-styleable>
 

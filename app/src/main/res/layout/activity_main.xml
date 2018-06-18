@@ -9,8 +9,8 @@
 
     <com.uchia.patternview.UltimatePatternView
         android:id="@+id/pattern_view"
-        android:layout_width="320dp"
-        android:layout_height="320dp"
+        android:layout_width="258dp"
+        android:layout_height="276dp"
         app:upv_gridColumns="3"
         app:upv_gridRows="4"
         app:upv_circleColor="@android:color/white"

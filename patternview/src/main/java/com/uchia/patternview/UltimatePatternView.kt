@@ -602,7 +602,7 @@ class UltimatePatternView : View ,IPatternView{
         // report pattern detected
         if (!mPattern.isEmpty()) {
             patternRule.patternInProgress = false
-            notifyPatternDetected()
+            notifyPatternDetected(getPatternString())
             invalidate()
         }
         if (PROFILE_DRAWING) {
@@ -625,6 +625,22 @@ class UltimatePatternView : View ,IPatternView{
             hitCell.isSelected = false
             invalidateCellArea(hitCell)
         }
+    }
+
+    private fun patternToString(): String {
+        if (mPattern == null) {
+            return ""
+        }
+        val patternSize = mPattern.size
+        val res = StringBuilder(patternSize)
+        for (i in 0 until patternSize) {
+            val cellToString = mPattern[i].getId()
+            res.append(cellToString)
+            if (i != patternSize - 1) {
+                res.append("&")
+            }
+        }
+        return res.toString()
     }
 
 
@@ -681,6 +697,14 @@ class UltimatePatternView : View ,IPatternView{
         cell.clickEvent = clickProxy
     }
 
+    /**
+     * Never null
+     *
+     * @return
+     */
+    fun getPatternString(): String {
+        return patternToString()
+    }
 
 
     private fun clearPatternDrawLookup() {
@@ -700,8 +724,8 @@ class UltimatePatternView : View ,IPatternView{
         onPatternStartListener?.onPatternStart()
     }
 
-    private fun notifyPatternDetected() {
-        onPatternDetectedListener?.onPatternDetected()
+    private fun notifyPatternDetected(result : String) {
+        onPatternDetectedListener?.onPatternDetected(result)
 
     }
 
@@ -726,7 +750,7 @@ class UltimatePatternView : View ,IPatternView{
     }
 
     interface OnPatternDetectedListener {
-        fun onPatternDetected()
+        fun onPatternDetected(result : String)
     }
 
     interface OnPatternSelectedListener{

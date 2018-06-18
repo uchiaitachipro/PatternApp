@@ -14,15 +14,34 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        registerBackwardEvent()
+//        initNumberMode()
+        initGestureMode()
     }
 
-    private fun registerBackwardEvent() {
+    private fun initGestureMode(){
+        patternView = findViewById(R.id.pattern_view)
+        patternView.patternType = PatternType.Gesture
+
+        patternView.onPatternDetectedListener = object : UltimatePatternView.OnPatternDetectedListener{
+            override fun onPatternDetected(result: String) {
+                Toast.makeText(
+                        this@MainActivity,
+                        "Click: $result",
+                        Toast.LENGTH_SHORT).show()
+            }
+
+        }
+    }
+
+    private fun initNumberMode() {
         patternView = findViewById(R.id.pattern_view)
         patternView.patternType = PatternType.Number
         patternView.registerClickEventByCell(3, 2, object : Cell.ClickListener {
             override fun click(cell: Cell) {
-                Toast.makeText(this@MainActivity, "hahah", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                        this@MainActivity,
+                        "hahah",
+                        Toast.LENGTH_SHORT).show()
             }
 
         })
