@@ -37,30 +37,22 @@ class UltimatePatternView : View ,IPatternView{
     private val invalidate = Rect()
     private lateinit var mPattern : ArrayList<Cell>
 
-    var touchEventMode = TouchEventHandleMode.ClickMode
+    private var touchEventMode = TouchEventHandleMode.GestureMode
+    private lateinit var patternRule : AbsPatternRule
 
-    var patternType = PatternType.Number
-    lateinit var patternRule: AbsPatternRule
+    var patternType : PatternType = PatternType.Gesture
+        set(value){
+            field = value
+            patternRule = initPattern(gridRows,gridColumns)
+            resetPattern()
+            requestLayout()
+        }
 
     var enableHapticFeedback = true
 
-    var pathColor: Int
-        get() = patternRule.pathColor
-        set(value) {
-            patternRule.pathColor = value
-        }
-
-    var circleColor: Int
-        get() = patternRule.circleColor
-        set(value) {
-            patternRule.circleColor = value
-        }
-
-    var dotColor: Int
-        get() = patternRule.dotColor
-        set(value) {
-            patternRule.dotColor = value
-        }
+    var pathColor: Int = 0
+    var circleColor: Int = 0
+    var dotColor: Int = 0
 
     var onPatternStartListener : OnPatternStartListener? = null
     var onPatternClearedListener : OnPatternClearedListener? = null
@@ -109,8 +101,6 @@ class UltimatePatternView : View ,IPatternView{
             numberTextSize = typedArray.getDimension(
                     R.styleable.UltimatePatternView_upv_number_textSize,24f)
 
-            patternRule = initPattern(gridRows, gridColumns)
-
             circleSize = typedArray.getDimensionPixelSize(
                     R.styleable.UltimatePatternView_upv_circleSize,
                     20)
@@ -127,6 +117,7 @@ class UltimatePatternView : View ,IPatternView{
                     R.styleable.UltimatePatternView_upv_pathWidth,
                     5) + 0f
 
+            patternRule = initPattern(gridRows, gridColumns)
 
 
         } finally {
@@ -138,10 +129,21 @@ class UltimatePatternView : View ,IPatternView{
     }
 
     private fun initPattern(row: Int, col: Int): AbsPatternRule {
-        return when (patternType) {
-            PatternType.Gesture -> GesturePattern(row, col, this)
-            PatternType.Number -> NumberPattern(row, col, this)
+        val rule = when (patternType) {
+            PatternType.Gesture -> {
+                touchEventMode = TouchEventHandleMode.GestureMode
+                GesturePattern(row, col, this)
+            }
+            PatternType.Number -> {
+                touchEventMode = TouchEventHandleMode.ClickMode
+                NumberPattern(row, col, this)
+            }
         }
+        rule.circleColor = circleColor
+        rule.dotColor = dotColor
+        rule.pathColor = pathColor
+
+        return rule
     }
 
     //todo: support al_most mode
@@ -427,11 +429,7 @@ class UltimatePatternView : View ,IPatternView{
 
             if (mPattern.size > 0){
                 val hitCell = mPattern[0]
-                val startX = getCenterXForColumn(hitCell.column)
-                val startY = getCenterYForRow(hitCell.row)
-
                 hitCell.isSelected = patternRule.isInClickArea(hitCell,x,y)
-
                invalidateCellArea(hitCell)
             } else{
                 var hitCell = detectAndAddHit(x, y)
@@ -618,9 +616,13 @@ class UltimatePatternView : View ,IPatternView{
     private fun handleActionUpByClickMode(){
         if (!mPattern.isEmpty()){
             val hitCell = mPattern[0]
-            Log.i("ClickMode","row : ${hitCell.row} col : ${hitCell.column}")
+
+            if (hitCell.clickEvent != null && touchEventMode == TouchEventHandleMode.ClickMode){
+                hitCell.clickEvent?.click(hitCell)
+            } else {
+                notifyPatternSelected(patternRule.getClickContent(hitCell))
+            }
             hitCell.isSelected = false
-            notifyPatternSelected()
             invalidateCellArea(hitCell)
         }
     }
@@ -639,6 +641,8 @@ class UltimatePatternView : View ,IPatternView{
     override fun getHostViewHeight(): Int = measuredHeight
 
     override var numberTextSize: Float = 0f
+
+    override fun isHostInEditMode(): Boolean = isInEditMode
 
     fun addCellToPattern(newCell: Cell) {
         patternRule.draw(newCell, true)
@@ -669,7 +673,15 @@ class UltimatePatternView : View ,IPatternView{
         invalidate()
     }
 
-    override fun isHostInEditMode(): Boolean = isInEditMode
+    fun registerClickEventByCell(
+            row : Int,
+            col : Int,
+            clickProxy : Cell.ClickListener){
+        val cell = patternRule.getCell(row,col)
+        cell.clickEvent = clickProxy
+    }
+
+
 
     private fun clearPatternDrawLookup() {
 //        for (i in 0 until gridRows) {
@@ -697,8 +709,8 @@ class UltimatePatternView : View ,IPatternView{
         onPatternClearedListener?.onPatternCleared()
     }
 
-    private fun notifyPatternSelected(){
-        onPatternSelectedListener?.onPatternSelected()
+    private fun notifyPatternSelected(content: String?){
+        onPatternSelectedListener?.onPatternSelected(content)
     }
 
     interface OnPatternStartListener {
@@ -718,7 +730,9 @@ class UltimatePatternView : View ,IPatternView{
     }
 
     interface OnPatternSelectedListener{
-        fun onPatternSelected()
+        fun onPatternSelected(content : String?)
     }
+
+
 
 }

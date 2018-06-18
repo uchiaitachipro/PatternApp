@@ -6,6 +6,7 @@ import com.uchia.patternview.extensions.CellUtils
 
 class Cell(): Parcelable{
 
+    var clickEvent  : ClickListener? = null
     var row = 0
     var column = 0
     var offsetX = 0
@@ -75,6 +76,11 @@ class Cell(): Parcelable{
         override fun newArray(size: Int): Array<Cell?> {
             return arrayOfNulls(size)
         }
+    }
+
+
+    interface ClickListener{
+        fun click(cell : Cell)
     }
 
 }

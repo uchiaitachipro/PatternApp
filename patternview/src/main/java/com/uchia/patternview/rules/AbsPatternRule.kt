@@ -134,6 +134,8 @@ abstract class AbsPatternRule : IPatternRule {
 
     override fun isInClickArea(cell : Cell,x : Float, y : Float): Boolean = false
 
+    override fun getClickContent(cell: Cell): String? = null
+
     private fun getBitmapFor(resId: Int): Bitmap {
         return BitmapFactory.decodeResource(context.resources, resId)
     }

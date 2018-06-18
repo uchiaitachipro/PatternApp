@@ -44,4 +44,6 @@ interface IPatternRule {
 
     fun isInClickArea(cell : Cell,x : Float, y : Float) : Boolean
 
+    fun getClickContent(cell : Cell) : String?
+
 }
