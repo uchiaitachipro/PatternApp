@@ -40,6 +40,8 @@ class UltimatePatternView : View ,IPatternView{
     private var touchEventMode = TouchEventHandleMode.GestureMode
     private lateinit var patternRule : AbsPatternRule
 
+    private val mPatternClearer = Runnable { clearPattern() }
+
     var patternType : PatternType = PatternType.Gesture
         set(value){
             field = value
@@ -672,6 +674,17 @@ class UltimatePatternView : View ,IPatternView{
         patternRule.patternDisplayMode = DisplayMode.Correct
         invalidate()
     }
+
+    fun clearPattern() {
+        cancelClearDelay()
+        resetPattern()
+        notifyPatternCleared()
+    }
+
+    fun cancelClearDelay() {
+        removeCallbacks(mPatternClearer)
+    }
+
 
     fun setDisplayMode(displayMode: DisplayMode) {
         patternRule.patternDisplayMode = displayMode
