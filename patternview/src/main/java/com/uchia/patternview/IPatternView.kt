@@ -11,14 +11,15 @@ interface IPatternView {
     var gridRows: Int
 
     var numberTextSize : Float
-
     var pathWidth: Float
-
     var squareWidth : Float
     var squareHeight : Float
-
     var inProgressX : Float
     var inProgressY : Float
+    var leftRealPadding : Int
+    var topRealPadding : Int
+    var rightRealPadding : Int
+    var bottomRealPadding : Int
 
     var animatingPeriodStart: Long
 

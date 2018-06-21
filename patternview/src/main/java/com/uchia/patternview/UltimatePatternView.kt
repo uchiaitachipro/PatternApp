@@ -34,6 +34,11 @@ class UltimatePatternView : View ,IPatternView{
     private val PROFILE_DRAWING = false
     private var drawingProfilingStarted = false
 
+    private var leftPaddingRatio: Float = 0f
+    private var rightPaddingRatio: Float = 0f
+    private var topPaddingRatio: Float = 0f
+    private var bottomPaddingRatio: Float = 0f
+
     private val invalidate = Rect()
     private lateinit var mPattern : ArrayList<Cell>
 
@@ -41,6 +46,9 @@ class UltimatePatternView : View ,IPatternView{
     private lateinit var patternRule : AbsPatternRule
 
     private val mPatternClearer = Runnable { clearPattern() }
+
+    override val hostContext: Context
+        get() = context
 
     var patternType : PatternType = PatternType.Gesture
         set(value){
@@ -73,10 +81,15 @@ class UltimatePatternView : View ,IPatternView{
 
     override var animatingPeriodStart: Long = 0
 
-    override val hostContext: Context
-        get() = context
-
     override var pathWidth: Float = 0f
+
+    override var leftRealPadding : Int = 0
+    override var topRealPadding : Int = 0
+    override var rightRealPadding : Int = 0
+    override var bottomRealPadding : Int = 0
+
+
+
 
     constructor(context: Context)
             : this(context, null)
@@ -119,6 +132,20 @@ class UltimatePatternView : View ,IPatternView{
                     R.styleable.UltimatePatternView_upv_pathWidth,
                     5) + 0f
 
+            leftPaddingRatio = typedArray.getFloat(
+                    R.styleable.UltimatePatternView_upv_left_padding_ratio,0f)
+            topPaddingRatio = typedArray.getFloat(
+                    R.styleable.UltimatePatternView_upv_top_padding_ratio,0f)
+            rightPaddingRatio = typedArray.getFloat(
+                    R.styleable.UltimatePatternView_upv_right_padding_ratio,0f)
+            bottomPaddingRatio = typedArray.getFloat(
+                    R.styleable.UltimatePatternView_upv_bottom_padding_ratio,0f);
+
+            leftPaddingRatio = Math.max(Math.min(leftPaddingRatio,1f),-1f)
+            topPaddingRatio = Math.max(Math.min(topPaddingRatio,1f),-1f)
+            rightPaddingRatio = Math.max(Math.min(rightPaddingRatio,1f),-1f)
+            bottomPaddingRatio = Math.max(Math.min(bottomPaddingRatio,1f),-1f)
+
             patternRule = initPattern(gridRows, gridColumns)
 
 
@@ -155,20 +182,19 @@ class UltimatePatternView : View ,IPatternView{
         val widthMode = View.MeasureSpec.getMode(widthMeasureSpec)
         if (widthMode == View.MeasureSpec.AT_MOST) {
             width = gridColumns * circleSize
-            squareWidth = circleSize.toFloat()
-        } else {
-            squareWidth = width / gridColumns.toFloat()
         }
         val heightMode = View.MeasureSpec.getMode(heightMeasureSpec)
         if (heightMode == View.MeasureSpec.AT_MOST) {
             height = gridRows * circleSize
-            squareHeight = circleSize.toFloat()
-        } else {
-            squareHeight = height / gridRows.toFloat()
         }
 
-//        squareWidth = Math.min(squareWidth, squareHeight)
-//        squareHeight = Math.min(squareWidth, squareHeight)
+        leftRealPadding = paddingLeft + (leftPaddingRatio * width).toInt()
+        rightRealPadding = paddingRight + (rightPaddingRatio * width).toInt()
+        topRealPadding  = paddingTop + (topPaddingRatio * height).toInt()
+        bottomRealPadding = paddingBottom + (bottomPaddingRatio * height).toInt()
+
+        squareWidth = (width - leftRealPadding - rightRealPadding).toFloat() / gridColumns
+        squareHeight = (height - topRealPadding - bottomRealPadding).toFloat() / gridRows
 
         setMeasuredDimension(width, height)
     }
@@ -220,7 +246,7 @@ class UltimatePatternView : View ,IPatternView{
         val squareWidth = this.squareWidth
         val hitSize = squareWidth * hitFactor
 
-        val offset = paddingLeft + (squareWidth - hitSize) / 2f
+        val offset = leftRealPadding + (squareWidth - hitSize) / 2f
         for (i in 0 until gridColumns) {
 
             val hitLeft = offset + squareWidth * i
@@ -236,7 +262,7 @@ class UltimatePatternView : View ,IPatternView{
         val squareHeight = this.squareHeight
         val hitSize = squareHeight * hitFactor
 
-        val offset = paddingTop + (squareHeight - hitSize) / 2f
+        val offset = rightRealPadding + (squareHeight - hitSize) / 2f
         for (i in 0 until gridRows) {
 
             val hitTop = offset + squareHeight * i
@@ -647,11 +673,11 @@ class UltimatePatternView : View ,IPatternView{
 
 
     override fun getCenterXForColumn(column: Int): Float {
-        return paddingLeft + column * squareWidth + squareWidth / 2f
+        return leftRealPadding + column * squareWidth + squareWidth / 2f
     }
 
     override fun getCenterYForRow(row: Int): Float {
-        return paddingTop + row * squareHeight + squareHeight / 2f
+        return topRealPadding + row * squareHeight + squareHeight / 2f
     }
 
     override fun getHostViewWidth(): Int = measuredWidth

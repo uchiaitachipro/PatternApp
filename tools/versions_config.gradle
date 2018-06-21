@@ -1,5 +1,6 @@
 ext {
     libVersions = [
-            kotlinStdlibJdk8:           '1.2.40'
+            kotlinStdlibJdk8:           '1.2.40',
+            appcompatVersion:           '27.1.1'
     ]
 }

@@ -74,10 +74,10 @@ class GesturePattern : AbsPatternRule {
 
             canvas.save()
             canvas.clipRect(
-                    0f,
-                    0f,
-                    hostView.getHostViewWidth().toFloat(),
-                    (hostView.getHostViewHeight() - hostView.squareHeight))
+                    hostView.leftRealPadding.toFloat(),
+                    hostView.topRealPadding.toFloat(),
+                    hostView.getHostViewWidth().toFloat() - hostView.rightRealPadding,
+                    (hostView.getHostViewHeight() - hostView.squareHeight - hostView.bottomRealPadding))
 
             val count = pattern.size
 

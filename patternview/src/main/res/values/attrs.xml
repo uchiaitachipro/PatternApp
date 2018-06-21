@@ -19,9 +19,13 @@
 
         <attr name="upv_number_textSize" format="dimension"/>
 
-        <attr name="upv_cell_width" format="dimension"/>
+        <attr name="upv_left_padding_ratio" format="float"/>
 
-        <attr name="upv_cell_height" format="dimension"/>
+        <attr name="upv_right_padding_ratio" format="float"/>
+
+        <attr name="upv_top_padding_ratio" format="float"/>
+
+        <attr name="upv_bottom_padding_ratio" format="float"/>
 
     </declare-styleable>
 
