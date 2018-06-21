@@ -27,6 +27,8 @@
 
         <attr name="upv_bottom_padding_ratio" format="float"/>
 
+        <attr name="upv_number_click_circle_radius" format="dimension"/>
+
     </declare-styleable>
 
 </resources>

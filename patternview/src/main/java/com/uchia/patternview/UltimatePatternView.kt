@@ -4,19 +4,25 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.RippleDrawable
+import android.os.Build
 import android.os.Debug
 import android.os.SystemClock
+import android.support.v4.content.res.ResourcesCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import com.uchia.patternview.anims.IClickAnim
+import com.uchia.patternview.anims.RippleClickAnimHelper
 import com.uchia.patternview.rules.AbsPatternRule
 import com.uchia.patternview.rules.GesturePattern
 import com.uchia.patternview.rules.NumberPattern
 import com.uchia.patternview.rules.enums.PatternType
 import com.uchia.patternview.rules.enums.DisplayMode
 import java.util.*
+import kotlin.math.ceil
 
 class UltimatePatternView : View ,IPatternView{
 
@@ -37,7 +43,8 @@ class UltimatePatternView : View ,IPatternView{
     private var leftPaddingRatio: Float = 0f
     private var rightPaddingRatio: Float = 0f
     private var topPaddingRatio: Float = 0f
-    private var bottomPaddingRatio: Float = 0f
+    private var bottomPaddingRatio : Float = 0f
+    private var numberCircleRadius : Float = 0f
 
     private val invalidate = Rect()
     private lateinit var mPattern : ArrayList<Cell>
@@ -46,6 +53,8 @@ class UltimatePatternView : View ,IPatternView{
     private lateinit var patternRule : AbsPatternRule
 
     private val mPatternClearer = Runnable { clearPattern() }
+
+
 
     override val hostContext: Context
         get() = context
@@ -88,7 +97,7 @@ class UltimatePatternView : View ,IPatternView{
     override var rightRealPadding : Int = 0
     override var bottomRealPadding : Int = 0
 
-
+//    override var clickAnimHelper: IClickAnim? = null
 
 
     constructor(context: Context)
@@ -100,8 +109,6 @@ class UltimatePatternView : View ,IPatternView{
     constructor(context: Context, attrs: AttributeSet?, defStyle: Int)
             : super(context, attrs, defStyle) {
         init(context, attrs)
-
-
     }
 
     private fun init(context: Context, attrs: AttributeSet?) {
@@ -146,7 +153,12 @@ class UltimatePatternView : View ,IPatternView{
             rightPaddingRatio = Math.max(Math.min(rightPaddingRatio,1f),-1f)
             bottomPaddingRatio = Math.max(Math.min(bottomPaddingRatio,1f),-1f)
 
+            numberCircleRadius = typedArray.getDimension(
+                    R.styleable.UltimatePatternView_upv_number_click_circle_radius,
+                    100f)
+
             patternRule = initPattern(gridRows, gridColumns)
+
 
 
         } finally {
@@ -154,7 +166,16 @@ class UltimatePatternView : View ,IPatternView{
         }
 
         mPattern = ArrayList(patternRule.getSize())
-
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+//            val helper = RippleClickAnimHelper(this)
+//            helper.drawable =  ResourcesCompat.getDrawable(
+//                    resources,
+//                    R.drawable.upv_click_ripe,
+//                    context.theme) as RippleDrawable
+//            clickAnimHelper = helper
+//            background = helper.drawable
+//            background.setBounds(0,0,0,0)
+//        }
     }
 
     private fun initPattern(row: Int, col: Int): AbsPatternRule {
@@ -168,6 +189,7 @@ class UltimatePatternView : View ,IPatternView{
                 NumberPattern(row, col, this)
             }
         }
+        rule.numberCircleRadius = numberCircleRadius
         rule.circleColor = circleColor
         rule.dotColor = dotColor
         rule.pathColor = pathColor
@@ -227,7 +249,7 @@ class UltimatePatternView : View ,IPatternView{
                 patternRule.patternInProgress = false
                 resetPattern()
                 notifyPatternCleared()
-
+//                setClickEffect(null)
                 if (PROFILE_DRAWING) {
                     if (drawingProfilingStarted) {
                         Debug.stopMethodTracing()
@@ -415,10 +437,34 @@ class UltimatePatternView : View ,IPatternView{
         patternRule.clearCellState()
         val hitCell = detectAndAddHitByClickMode(x, y)
         if (hitCell != null) {
+//            performClick()
+//            setClickEffect(hitCell)
+            hitCell.isSelected = true
             invalidateCellArea(hitCell)
             notifyPatternStarted()
         }
+
     }
+
+//    private fun setClickEffect(hitCell : Cell?){
+//
+//        if (hitCell == null){
+//            clickAnimHelper?.setClickState(false)
+//            clickAnimHelper?.setHotspot(0f,0f)
+//            clickAnimHelper?.setClickBounds(0,0,0,0)
+//            return
+//        }
+//
+//        val centerX = getCenterXForColumn(hitCell?.column!!).toInt()
+//        var centerY = getCenterYForRow(hitCell?.row!!).toInt()
+//        clickAnimHelper?.setHotspot(centerX.toFloat(),centerY.toFloat())
+//        clickAnimHelper?.setClickBounds(
+//                centerX - 200,
+//                centerY - 100,
+//                centerX + 200 ,
+//                centerY + 100)
+//        clickAnimHelper?.setClickState(true)
+//    }
 
     private fun invalidateCellArea(hitCell : Cell){
         val startX = getCenterXForColumn(hitCell.column)
@@ -464,6 +510,8 @@ class UltimatePatternView : View ,IPatternView{
                 val patternSize = mPattern.size
                 if (hitCell != null && patternSize == 0) {
                     hitCell.isSelected = true
+                    performClick()
+//                    setClickEffect(hitCell)
                     notifyPatternStarted()
                     invalidateCellArea(hitCell)
                 }
@@ -650,6 +698,7 @@ class UltimatePatternView : View ,IPatternView{
             } else {
                 notifyPatternSelected(patternRule.getClickContent(hitCell))
             }
+//            setClickEffect(null)
             hitCell.isSelected = false
             invalidateCellArea(hitCell)
         }

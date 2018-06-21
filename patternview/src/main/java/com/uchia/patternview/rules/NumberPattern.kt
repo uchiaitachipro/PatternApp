@@ -10,14 +10,15 @@ import java.util.ArrayList
 
 class NumberPattern : AbsPatternRule {
 
-//    private val Debug = true
-
     private val InvalidNumber = "-1"
 
     private val ClickAreaRatio = 0.3f
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val selectedPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private val debugPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val rect = Rect()
 
@@ -35,6 +36,14 @@ class NumberPattern : AbsPatternRule {
             : super(row, col, hostView) {
         textPaint.color = Color.WHITE
         textPaint.textSize = hostView.numberTextSize
+
+        selectedPaint.strokeWidth = 3f
+        selectedPaint.color = Color.argb(51,255,255,255)
+        selectedPaint.style = Paint.Style.FILL
+
+        debugPaint.strokeWidth = 8f
+        debugPaint.color = Color.RED
+
 
     }
 
@@ -94,28 +103,26 @@ class NumberPattern : AbsPatternRule {
             return numberToOffsetMap[number]!!
         }
 
-        val textDimension = calculateTextDimension(number!!)
-        val result = intArrayOf(textDimension[0] / 2, textDimension[1] / 2)
+        textPaint.getTextBounds(number, 0, number.length, rect)
+        var width = textPaint.measureText(number).toInt()
+        val result = intArrayOf(width / 2 , rect.height() / 2)
         numberToOffsetMap[number] = result
-
-        return result
-    }
-
-    private fun calculateTextDimension(content: String): Array<Int> {
-        paint.textSize = hostView.numberTextSize
-        paint.getTextBounds(content, 0, content.length, rect)
-        val result = arrayOf(rect.width(), rect.height())
         rect.setEmpty()
         return result
     }
+
 
     private val drawProxy = object : IDrawRule {
 
 
         override fun draw(canvas: Canvas, pattern: ArrayList<Cell>) {
 
-            drawNumbers(canvas)
+//            hostView.clickAnimHelper?.draw(canvas)
 
+            drawNumbers(canvas)
+            if (pattern.size > 0){
+                drawSelectedCircle(canvas,pattern[0])
+            }
         }
 
         private fun drawNumbers(canvas: Canvas) {
@@ -148,12 +155,26 @@ class NumberPattern : AbsPatternRule {
                     val centerY = hostView.getCenterYForRow(row)
                     canvas.drawText(
                             text,
-                            centerX - offsetXY[0],
+                            centerX - offsetXY[0] ,
                             centerY + offsetXY[1],
                             textPaint)
+
+//                    canvas.drawPoint(centerX,centerY,debugPaint)
                 }
 
             }
+        }
+
+        private fun drawSelectedCircle(canvas : Canvas , cell : Cell){
+
+            if (!cell.isSelected){
+                return
+            }
+
+            val centerX = hostView.getCenterXForColumn(cell.column)
+            val centerY = hostView.getCenterYForRow(cell.row)
+            canvas.drawCircle(centerX,centerY,numberCircleRadius,selectedPaint)
+
         }
 
 

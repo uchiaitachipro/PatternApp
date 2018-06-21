@@ -1,6 +1,7 @@
 package com.uchia.patternview
 
 import android.content.Context
+import com.uchia.patternview.anims.IClickAnim
 
 /**
  * Created by uchia on 2018/6/16.
@@ -11,7 +12,7 @@ interface IPatternView {
     var gridRows: Int
 
     var numberTextSize : Float
-    var pathWidth: Float
+    var pathWidth : Float
     var squareWidth : Float
     var squareHeight : Float
     var inProgressX : Float
@@ -21,9 +22,11 @@ interface IPatternView {
     var rightRealPadding : Int
     var bottomRealPadding : Int
 
-    var animatingPeriodStart: Long
+    var animatingPeriodStart : Long
 
-    val hostContext: Context
+    val hostContext : Context
+
+//    var clickAnimHelper : IClickAnim?
 
     fun getPaddingTop() : Int
 
@@ -35,9 +38,9 @@ interface IPatternView {
 
     fun isHostInEditMode() : Boolean
 
-    fun getCenterXForColumn(column: Int): Float
+    fun getCenterXForColumn(column: Int) : Float
 
-    fun getCenterYForRow(row: Int): Float
+    fun getCenterYForRow(row: Int) : Float
 
     fun invalidate()
 

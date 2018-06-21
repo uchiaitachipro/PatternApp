@@ -12,6 +12,8 @@ interface IPatternRule {
 
     var patternInProgress : Boolean
 
+    var numberCircleRadius : Float
+
     fun getRowCount(): Int
 
     fun getColumnCount(): Int

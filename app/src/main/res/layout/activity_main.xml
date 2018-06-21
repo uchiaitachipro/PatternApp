@@ -8,6 +8,15 @@
     android:background="#333333"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/button_01"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/test_click_ripe"
+        android:text="Click Me"/>
+
     <com.uchia.patternview.UltimatePatternView
         android:id="@+id/pattern_view"
         android:layout_width="258dp"
@@ -20,16 +29,17 @@
         app:upv_pathColor="@android:color/white"
         app:upv_pathWidth="3dp"
         app:upv_number_textSize="27sp"
-        app:upv_left_padding_ratio="0.2"
-        app:upv_right_padding_ratio="0.2"
-        app:upv_top_padding_ratio="-0.05"
-        app:upv_bottom_padding_ratio="-0.05"
+        app:upv_left_padding_ratio="0"
+        app:upv_right_padding_ratio="0"
+        app:upv_top_padding_ratio="0"
+        app:upv_bottom_padding_ratio="0"
+        app:upv_number_click_circle_radius="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_01"
         app:layout_constraintVertical_bias="0.626" />
 
     <TextView
