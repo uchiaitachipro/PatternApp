@@ -14,6 +14,8 @@ interface IPatternRule {
 
     var numberCircleRadius : Float
 
+    var numberCircleStroke : Float
+
     fun getRowCount(): Int
 
     fun getColumnCount(): Int

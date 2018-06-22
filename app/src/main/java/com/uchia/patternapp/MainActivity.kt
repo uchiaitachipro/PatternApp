@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
 
         })
 
+        patternView.deleteIcon = resources.getDrawable(R.drawable.ic_btn_delete_20dp)
+
         patternView.onPatternSelectedListener = object : UltimatePatternView.OnPatternSelectedListener {
             override fun onPatternSelected(content: String?) {
                 content?.let {

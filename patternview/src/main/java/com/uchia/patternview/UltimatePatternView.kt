@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.os.Debug
@@ -24,9 +25,9 @@ import com.uchia.patternview.rules.enums.DisplayMode
 import java.util.*
 import kotlin.math.ceil
 
-class UltimatePatternView : View ,IPatternView{
+class UltimatePatternView : View, IPatternView {
 
-    enum class TouchEventHandleMode{
+    enum class TouchEventHandleMode {
         ClickMode,
         GestureMode
     }
@@ -43,26 +44,26 @@ class UltimatePatternView : View ,IPatternView{
     private var leftPaddingRatio: Float = 0f
     private var rightPaddingRatio: Float = 0f
     private var topPaddingRatio: Float = 0f
-    private var bottomPaddingRatio : Float = 0f
-    private var numberCircleRadius : Float = 0f
+    private var bottomPaddingRatio: Float = 0f
+    private var numberCircleRadius: Float = 0f
+    private var numberCircleStroke: Float = 0f
 
     private val invalidate = Rect()
-    private lateinit var mPattern : ArrayList<Cell>
+    private lateinit var mPattern: ArrayList<Cell>
 
     private var touchEventMode = TouchEventHandleMode.GestureMode
-    private lateinit var patternRule : AbsPatternRule
+    private lateinit var patternRule: AbsPatternRule
 
     private val mPatternClearer = Runnable { clearPattern() }
-
 
 
     override val hostContext: Context
         get() = context
 
-    var patternType : PatternType = PatternType.Gesture
-        set(value){
+    var patternType: PatternType = PatternType.Gesture
+        set(value) {
             field = value
-            patternRule = initPattern(gridRows,gridColumns)
+            patternRule = initPattern(gridRows, gridColumns)
             resetPattern()
             requestLayout()
         }
@@ -73,11 +74,11 @@ class UltimatePatternView : View ,IPatternView{
     var circleColor: Int = 0
     var dotColor: Int = 0
 
-    var onPatternStartListener : OnPatternStartListener? = null
-    var onPatternClearedListener : OnPatternClearedListener? = null
-    var onPatternCellAddedListener : OnPatternCellAddedListener? = null
-    var onPatternDetectedListener : OnPatternDetectedListener? = null
-    var onPatternSelectedListener : OnPatternSelectedListener? = null
+    var onPatternStartListener: OnPatternStartListener? = null
+    var onPatternClearedListener: OnPatternClearedListener? = null
+    var onPatternCellAddedListener: OnPatternCellAddedListener? = null
+    var onPatternDetectedListener: OnPatternDetectedListener? = null
+    var onPatternSelectedListener: OnPatternSelectedListener? = null
 
     override var squareWidth: Float = 0f
     override var squareHeight: Float = 0f
@@ -92,10 +93,12 @@ class UltimatePatternView : View ,IPatternView{
 
     override var pathWidth: Float = 0f
 
-    override var leftRealPadding : Int = 0
-    override var topRealPadding : Int = 0
-    override var rightRealPadding : Int = 0
-    override var bottomRealPadding : Int = 0
+    override var leftRealPadding: Int = 0
+    override var topRealPadding: Int = 0
+    override var rightRealPadding: Int = 0
+    override var bottomRealPadding: Int = 0
+
+    override var deleteIcon: Drawable? = null
 
 //    override var clickAnimHelper: IClickAnim? = null
 
@@ -121,7 +124,7 @@ class UltimatePatternView : View ,IPatternView{
             gridRows = typedArray.getInt(R.styleable.UltimatePatternView_upv_gridRows, 3)
 
             numberTextSize = typedArray.getDimension(
-                    R.styleable.UltimatePatternView_upv_number_textSize,24f)
+                    R.styleable.UltimatePatternView_upv_number_textSize, 24f)
 
             circleSize = typedArray.getDimensionPixelSize(
                     R.styleable.UltimatePatternView_upv_circleSize,
@@ -140,25 +143,28 @@ class UltimatePatternView : View ,IPatternView{
                     5) + 0f
 
             leftPaddingRatio = typedArray.getFloat(
-                    R.styleable.UltimatePatternView_upv_left_padding_ratio,0f)
+                    R.styleable.UltimatePatternView_upv_left_padding_ratio, 0f)
             topPaddingRatio = typedArray.getFloat(
-                    R.styleable.UltimatePatternView_upv_top_padding_ratio,0f)
+                    R.styleable.UltimatePatternView_upv_top_padding_ratio, 0f)
             rightPaddingRatio = typedArray.getFloat(
-                    R.styleable.UltimatePatternView_upv_right_padding_ratio,0f)
+                    R.styleable.UltimatePatternView_upv_right_padding_ratio, 0f)
             bottomPaddingRatio = typedArray.getFloat(
-                    R.styleable.UltimatePatternView_upv_bottom_padding_ratio,0f);
+                    R.styleable.UltimatePatternView_upv_bottom_padding_ratio, 0f);
 
-            leftPaddingRatio = Math.max(Math.min(leftPaddingRatio,1f),-1f)
-            topPaddingRatio = Math.max(Math.min(topPaddingRatio,1f),-1f)
-            rightPaddingRatio = Math.max(Math.min(rightPaddingRatio,1f),-1f)
-            bottomPaddingRatio = Math.max(Math.min(bottomPaddingRatio,1f),-1f)
+            leftPaddingRatio = Math.max(Math.min(leftPaddingRatio, 1f), -1f)
+            topPaddingRatio = Math.max(Math.min(topPaddingRatio, 1f), -1f)
+            rightPaddingRatio = Math.max(Math.min(rightPaddingRatio, 1f), -1f)
+            bottomPaddingRatio = Math.max(Math.min(bottomPaddingRatio, 1f), -1f)
 
             numberCircleRadius = typedArray.getDimension(
                     R.styleable.UltimatePatternView_upv_number_click_circle_radius,
                     100f)
 
-            patternRule = initPattern(gridRows, gridColumns)
+            numberCircleStroke = typedArray.getDimension(
+                    R.styleable.UltimatePatternView_upv_number_click_circle_stroke,
+                    0f)
 
+            patternRule = initPattern(gridRows, gridColumns)
 
 
         } finally {
@@ -189,10 +195,12 @@ class UltimatePatternView : View ,IPatternView{
                 NumberPattern(row, col, this)
             }
         }
+        rule.numberCircleStroke = numberCircleStroke
         rule.numberCircleRadius = numberCircleRadius
         rule.circleColor = circleColor
         rule.dotColor = dotColor
         rule.pathColor = pathColor
+
 
         return rule
     }
@@ -212,7 +220,7 @@ class UltimatePatternView : View ,IPatternView{
 
         leftRealPadding = paddingLeft + (leftPaddingRatio * width).toInt()
         rightRealPadding = paddingRight + (rightPaddingRatio * width).toInt()
-        topRealPadding  = paddingTop + (topPaddingRatio * height).toInt()
+        topRealPadding = paddingTop + (topPaddingRatio * height).toInt()
         bottomRealPadding = paddingBottom + (bottomPaddingRatio * height).toInt()
 
         squareWidth = (width - leftRealPadding - rightRealPadding).toFloat() / gridColumns
@@ -222,7 +230,7 @@ class UltimatePatternView : View ,IPatternView{
     }
 
     override fun onDraw(canvas: Canvas) {
-        patternRule.getDrawProxy().draw(canvas,mPattern)
+        patternRule.getDrawProxy().draw(canvas, mPattern)
     }
 
 
@@ -309,16 +317,16 @@ class UltimatePatternView : View ,IPatternView{
         return if (patternRule.isDrawn(rowHit, columnHit)
                 || patternRule.isInExcludeRow(rowHit)
                 || patternRule.isInExcludeColumn(columnHit)
-                || patternRule.isExcludeCell(rowHit,columnHit)) {
+                || patternRule.isExcludeCell(rowHit, columnHit)) {
             null
         } else {
             patternRule.getCell(rowHit, columnHit)
         }
     }
 
-    private fun detectAndAddHitByClickMode(x: Float, y: Float): Cell?{
+    private fun detectAndAddHitByClickMode(x: Float, y: Float): Cell? {
         val cell = checkForNewHit(x, y)
-        if (cell != null){
+        if (cell != null) {
             addCellToPattern(cell)
             if (enableHapticFeedback) {
                 performHapticFeedback(
@@ -380,10 +388,10 @@ class UltimatePatternView : View ,IPatternView{
         return null
     }
 
-    private fun handleActionDown(event: MotionEvent){
-        if (touchEventMode == TouchEventHandleMode.ClickMode){
+    private fun handleActionDown(event: MotionEvent) {
+        if (touchEventMode == TouchEventHandleMode.ClickMode) {
             handleTouchDownByClickMode(event)
-        } else{
+        } else {
             handleActionDownByTouchMode(event)
         }
     }
@@ -430,7 +438,7 @@ class UltimatePatternView : View ,IPatternView{
         }
     }
 
-    private fun handleTouchDownByClickMode(event: MotionEvent){
+    private fun handleTouchDownByClickMode(event: MotionEvent) {
         val x = event.x
         val y = event.y
         resetPattern()
@@ -466,7 +474,7 @@ class UltimatePatternView : View ,IPatternView{
 //        clickAnimHelper?.setClickState(true)
 //    }
 
-    private fun invalidateCellArea(hitCell : Cell){
+    private fun invalidateCellArea(hitCell: Cell) {
         val startX = getCenterXForColumn(hitCell.column)
         val startY = getCenterYForRow(hitCell.row)
 
@@ -478,17 +486,17 @@ class UltimatePatternView : View ,IPatternView{
                 (startX + widthOffset).toInt(), (startY + heightOffset).toInt())
     }
 
-    private fun handleActionMove(event: MotionEvent){
-        if (touchEventMode == TouchEventHandleMode.ClickMode){
+    private fun handleActionMove(event: MotionEvent) {
+        if (touchEventMode == TouchEventHandleMode.ClickMode) {
             handleActionMoveByClickMode(event)
-        }else {
+        } else {
             handleActionMoveByTouchMode(event)
         }
     }
 
-    private fun handleActionMoveByClickMode(event : MotionEvent){
+    private fun handleActionMoveByClickMode(event: MotionEvent) {
         val historySize = event.historySize
-        for (i in 0 .. historySize){
+        for (i in 0..historySize) {
             val x = if (i < historySize) {
                 event.getHistoricalX(i)
             } else {
@@ -501,11 +509,11 @@ class UltimatePatternView : View ,IPatternView{
                 event.y
             }
 
-            if (mPattern.size > 0){
+            if (mPattern.size > 0) {
                 val hitCell = mPattern[0]
-                hitCell.isSelected = patternRule.isInClickArea(hitCell,x,y)
-               invalidateCellArea(hitCell)
-            } else{
+                hitCell.isSelected = patternRule.isInClickArea(hitCell, x, y)
+                invalidateCellArea(hitCell)
+            } else {
                 var hitCell = detectAndAddHit(x, y)
                 val patternSize = mPattern.size
                 if (hitCell != null && patternSize == 0) {
@@ -519,7 +527,7 @@ class UltimatePatternView : View ,IPatternView{
         }
     }
 
-    private fun handleActionMoveByTouchMode(event : MotionEvent) {
+    private fun handleActionMoveByTouchMode(event: MotionEvent) {
         // Handle all recent motion events so we don't skip any cells even when
         // the device
         // is busy...
@@ -666,8 +674,8 @@ class UltimatePatternView : View ,IPatternView{
         invalidate()
     }
 
-    private fun handleActionUp(){
-        if (touchEventMode == TouchEventHandleMode.ClickMode){
+    private fun handleActionUp() {
+        if (touchEventMode == TouchEventHandleMode.ClickMode) {
             handleActionUpByClickMode()
         } else {
             handleActionUpByTouchMode()
@@ -689,18 +697,23 @@ class UltimatePatternView : View ,IPatternView{
         }
     }
 
-    private fun handleActionUpByClickMode(){
-        if (!mPattern.isEmpty()){
+    private fun handleActionUpByClickMode() {
+        if (!mPattern.isEmpty()) {
             val hitCell = mPattern[0]
 
-            if (hitCell.clickEvent != null && touchEventMode == TouchEventHandleMode.ClickMode){
+            if (hitCell.clickEvent != null && touchEventMode == TouchEventHandleMode.ClickMode) {
                 hitCell.clickEvent?.click(hitCell)
             } else {
                 notifyPatternSelected(patternRule.getClickContent(hitCell))
             }
 //            setClickEffect(null)
             hitCell.isSelected = false
-            invalidateCellArea(hitCell)
+
+            postDelayed({
+                this.invalidateCellArea(hitCell)
+            }, 80)
+
+
         }
     }
 
@@ -778,29 +791,20 @@ class UltimatePatternView : View ,IPatternView{
     }
 
     fun registerClickEventByCell(
-            row : Int,
-            col : Int,
-            clickProxy : Cell.ClickListener){
-        val cell = patternRule.getCell(row,col)
+            row: Int,
+            col: Int,
+            clickProxy: Cell.ClickListener) {
+        val cell = patternRule.getCell(row, col)
         cell.clickEvent = clickProxy
     }
 
-    /**
-     * Never null
-     *
-     * @return
-     */
+
     fun getPatternString(): String {
         return patternToString()
     }
 
-
     private fun clearPatternDrawLookup() {
-//        for (i in 0 until gridRows) {
-//        for (j in 0 until gridColumns) {
         patternRule.clearDrawing()
-//            }
-//        }
     }
 
 
@@ -812,7 +816,7 @@ class UltimatePatternView : View ,IPatternView{
         onPatternStartListener?.onPatternStart()
     }
 
-    private fun notifyPatternDetected(result : String) {
+    private fun notifyPatternDetected(result: String) {
         onPatternDetectedListener?.onPatternDetected(result)
 
     }
@@ -821,7 +825,7 @@ class UltimatePatternView : View ,IPatternView{
         onPatternClearedListener?.onPatternCleared()
     }
 
-    private fun notifyPatternSelected(content: String?){
+    private fun notifyPatternSelected(content: String?) {
         onPatternSelectedListener?.onPatternSelected(content)
     }
 
@@ -838,13 +842,12 @@ class UltimatePatternView : View ,IPatternView{
     }
 
     interface OnPatternDetectedListener {
-        fun onPatternDetected(result : String)
+        fun onPatternDetected(result: String)
     }
 
-    interface OnPatternSelectedListener{
-        fun onPatternSelected(content : String?)
+    interface OnPatternSelectedListener {
+        fun onPatternSelected(content: String?)
     }
-
 
 
 }

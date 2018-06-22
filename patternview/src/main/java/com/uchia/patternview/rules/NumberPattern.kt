@@ -14,11 +14,10 @@ class NumberPattern : AbsPatternRule {
 
     private val ClickAreaRatio = 0.3f
 
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val selectedPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-
-    private val debugPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+//    private val debugPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val rect = Rect()
 
@@ -32,17 +31,25 @@ class NumberPattern : AbsPatternRule {
 
     private val numberToOffsetMap = HashMap<String, IntArray>(10)
 
+    override var numberCircleStroke: Float = 0f
+        set(value) {
+            field = value
+            strokePaint.strokeWidth = numberCircleStroke
+        }
+
     constructor(row: Int, col: Int, hostView: IPatternView)
             : super(row, col, hostView) {
         textPaint.color = Color.WHITE
         textPaint.textSize = hostView.numberTextSize
 
-        selectedPaint.strokeWidth = 3f
+//        selectedPaint.strokeWidth = numberCircleStroke
         selectedPaint.color = Color.argb(51,255,255,255)
         selectedPaint.style = Paint.Style.FILL
 
-        debugPaint.strokeWidth = 8f
-        debugPaint.color = Color.RED
+        strokePaint.color = Color.argb(104,243,243,243)
+        strokePaint.style = Paint.Style.STROKE
+//        debugPaint.strokeWidth = 8f
+//        debugPaint.color = Color.RED
 
 
     }
@@ -96,6 +103,8 @@ class NumberPattern : AbsPatternRule {
         return positionToTextMap[index]
     }
 
+    private fun deleteLocation() = 11
+
 
     private fun getNumberOffsetCached(number: String): IntArray {
 
@@ -147,6 +156,10 @@ class NumberPattern : AbsPatternRule {
                     val text = positionToTextMap[index]
 
                     if (text == InvalidNumber) {
+                        drawDeleteIcon(canvas,col,row)
+//                        val centerX = hostView.getCenterXForColumn(col)
+//                        val centerY = hostView.getCenterYForRow(row)
+//                        canvas.drawPoint(centerX,centerY,debugPaint)
                         continue
                     }
 
@@ -171,9 +184,45 @@ class NumberPattern : AbsPatternRule {
                 return
             }
 
+            if (isInExcludeColumn(cell.column) || isInExcludeRow(cell.row)){
+                return
+            }
+
+            if (isExcludeCell(cell.column,cell.row)){
+                return
+            }
+
+            if ((cell.row * hostView.gridColumns + cell.column) == deleteLocation()){
+                return
+            }
+
+
             val centerX = hostView.getCenterXForColumn(cell.column)
             val centerY = hostView.getCenterYForRow(cell.row)
+
             canvas.drawCircle(centerX,centerY,numberCircleRadius,selectedPaint)
+            canvas.drawCircle(
+                    centerX,
+                    centerY,
+                    numberCircleRadius + numberCircleStroke / 2,
+                    strokePaint)
+
+        }
+
+        private fun drawDeleteIcon(canvas: Canvas ,col : Int ,row : Int){
+
+            if (hostView.deleteIcon == null){
+                return
+            }
+
+            val centerX = hostView.getCenterXForColumn(col)
+            val centerY = hostView.getCenterYForRow(row)
+            val d = hostView.deleteIcon!!
+            val x = (centerX - d.intrinsicWidth / 2).toInt()
+            var y = (centerY - d.intrinsicHeight / 2).toInt()
+
+            d.setBounds(x,y,x + d.intrinsicWidth,y + d.intrinsicHeight)
+            d.draw(canvas)
 
         }
 

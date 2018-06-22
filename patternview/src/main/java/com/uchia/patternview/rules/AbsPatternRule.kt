@@ -62,6 +62,8 @@ abstract class AbsPatternRule : IPatternRule {
 
     override var numberCircleRadius: Float = 0f
 
+    override var numberCircleStroke: Float = 0f
+
     constructor(rows: Int, columns: Int, hostView : IPatternView) {
 
         CellUtils.checkRange(rows, columns)

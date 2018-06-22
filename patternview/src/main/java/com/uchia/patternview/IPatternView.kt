@@ -1,6 +1,7 @@
 package com.uchia.patternview
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import com.uchia.patternview.anims.IClickAnim
 
 /**
@@ -25,6 +26,8 @@ interface IPatternView {
     var animatingPeriodStart : Long
 
     val hostContext : Context
+
+    var deleteIcon : Drawable?
 
 //    var clickAnimHelper : IClickAnim?
 

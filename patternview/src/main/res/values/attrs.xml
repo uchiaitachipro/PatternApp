@@ -29,6 +29,8 @@
 
         <attr name="upv_number_click_circle_radius" format="dimension"/>
 
+        <attr name="upv_number_click_circle_stroke" format="dimension"/>
+
     </declare-styleable>
 
 </resources>
