@@ -20,7 +20,7 @@
     <com.uchia.patternview.UltimatePatternView
         android:id="@+id/pattern_view"
         android:layout_width="258dp"
-        android:layout_height="276dp"
+        android:layout_height="344dp"
         app:upv_gridColumns="3"
         app:upv_gridRows="4"
         app:upv_circleColor="@android:color/white"
@@ -33,7 +33,7 @@
         app:upv_right_padding_ratio="0"
         app:upv_top_padding_ratio="0"
         app:upv_bottom_padding_ratio="0"
-        app:upv_number_click_circle_radius="40dp"
+        app:upv_number_click_circle_radius="30dp"
         app:upv_number_click_circle_stroke="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
@@ -43,33 +43,6 @@
         app:layout_constraintTop_toBottomOf="@+id/button_01"
         app:layout_constraintVertical_bias="0.626" />
 
-    <TextView
-        android:id="@+id/status_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/pattern_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="输入隐藏应用密码" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
-        android:background="@android:color/transparent"
-        android:minWidth="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pattern_view"
-        app:layout_constraintVertical_bias="0.288"
-        tools:text="dfsafdsa" />
 
 </android.support.constraint.ConstraintLayout>

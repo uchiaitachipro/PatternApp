@@ -2,6 +2,7 @@ package com.uchia.patternapp
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.Button
 import android.widget.Toast
 import com.uchia.patternview.Cell
 import com.uchia.patternview.UltimatePatternView
@@ -11,11 +12,21 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var patternView: UltimatePatternView
 
+    var currentPatternType  = PatternType.Gesture
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initNumberMode()
-//        initGestureMode()
+        initGestureMode()
+        findViewById<Button>(R.id.button_01).setOnClickListener {
+            if (currentPatternType == PatternType.Gesture){
+                currentPatternType = PatternType.Number
+                initNumberMode()
+            } else if (currentPatternType == PatternType.Number){
+                currentPatternType = PatternType.Gesture
+                initGestureMode()
+            }
+        }
     }
 
     private fun initGestureMode(){
