@@ -60,10 +60,7 @@ implementation ‘com.android.support:appcompat-v7:27.1.1’
 ```kotlin
     patternView.registerClickEventByCell(3, 2, object :                 Cell.ClickListener {
             override fun click(cell: Cell) {
-                Toast.makeText(
-                        this@MainActivity,
-                        "hahah",
-                        Toast.LENGTH_SHORT).show()
+                //todo
             }
 
         })
