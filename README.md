@@ -1,7 +1,7 @@
 # 前言
 1. 为什么会有这个项目呢？主要是经过大量的搜寻没有发现同时具有数字锁和手势锁的控件无奈写了个。
 2. 考察kotlin书写复杂控件的舒适程度。
-3. 这个项目的手势代码是借鉴别人的。由于转了几手，到我手里已不知原作者，故在这里先说明并道谢。
+3. 这个项目的手势代码是借鉴别人的。由于转了几手，到我手里已不知原作者，故在这里先说明并道谢。
 
 ## 运行截图
 ![image](./screenshot/screenshot.gif)
@@ -12,7 +12,7 @@ implementation 'com.uchia.patternview:patternview:1.0.5'
 implementation ‘org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.2.40’
 implementation ‘com.android.support:appcompat-v7:27.1.1’
 ```
-**因为本库是用kotlin写的故还需依赖kotlin**
+**因为本库是用kotlin写的故还需依赖kotlin**
 
 ```xml
 
@@ -27,7 +27,7 @@ implementation ‘com.android.support:appcompat-v7:27.1.1’
 
 ```
 
-手势锁完成回调
+手势锁完成回调
 ```kotlin 
 
     patternView.onPatternDetectedListener = object : UltimatePatternView.OnPatternDetectedListener{
@@ -56,7 +56,7 @@ implementation ‘com.android.support:appcompat-v7:27.1.1’
         }
 ```
 
-数字锁删除按钮事件注册
+数字锁删除按钮事件注册
 ```kotlin
     patternView.registerClickEventByCell(3, 2, object :                 Cell.ClickListener {
             override fun click(cell: Cell) {
@@ -74,8 +74,8 @@ patternView.deleteIcon = ***
 ## 属性说明
 |属性名|作用|
 |:--|:--|
-|upv_gridRows| 设置锁的行数，如果需要混用数字手势锁请设为4，后期调整|
-|upv_gridColumns|设置锁的列数，如果需要混用数字手势锁请设为3，后期调整|
+|upv_gridRows| 设置锁的行数，如果需要混用数字手势锁请设为4，后期调整|
+|upv_gridColumns|设置锁的列数，如果需要混用数字手势锁请设为3，后期调整|
 |upv_pathColor|设置手势锁连线颜色|
 |upv_pathWidth|设置手势锁连线的宽度|
 |upv_number_textSize|设置数字锁文字的大小|
@@ -87,6 +87,6 @@ patternView.deleteIcon = ***
 |upv_number_click_circle_stroke|设置数字锁按下的圆描边的宽度|
 
 ## todo
-1. 开放出更多的自定义属性
-2. 取消混用的行列限制
+1. 开放出更多的自定义属性
+2. 取消混用的行列限制
 3. 支持水波纹点击效果
