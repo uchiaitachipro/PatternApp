@@ -83,8 +83,8 @@ patternView.deleteIcon = ***
 |upv_right_padding_ratio|设置锁的右边距，用于调整稀疏程度，范围为-1～1|
 |upv_top_padding_ratio|设置锁的上边距，用于调整稀疏程度，范围为-1～1|
 |upv_bottom_padding_ratio|设置锁的下边距，用于调整稀疏程度，范围为-1～1|
-|upv_number_click_circle_radius|设置数字锁按下圆的半径|
-|upv_number_click_circle_stroke|设置数字锁按下的圆描边的宽度|
+|upv_number_click_circle_radius|设置数字锁按下圆的半径|
+|upv_number_click_circle_stroke|设置数字锁按下的圆描边的宽度|
 
 ## todo
 1. 开放出更多的自定义属性
