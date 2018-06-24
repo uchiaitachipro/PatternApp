@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.Toast
 import com.uchia.patternview.Cell
 import com.uchia.patternview.UltimatePatternView
+import com.uchia.patternview.rules.enums.DisplayMode
 import com.uchia.patternview.rules.enums.PatternType
 
 class MainActivity : AppCompatActivity() {
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
                         this@MainActivity,
                         "Click: $result",
                         Toast.LENGTH_SHORT).show()
+                patternView.setDisplayMode(DisplayMode.Wrong)
             }
 
         }
